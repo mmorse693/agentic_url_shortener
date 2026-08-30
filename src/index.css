@@ -1,13 +1,86 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+:root {
+  color-scheme: light dark;
+
+  --paper: #f4f6f8;
+  --surface: #ffffff;
+  --surface-2: #eaeef3;
+  --ink: #141922;
+  --ink-2: #39424f;
+  --muted: #6b7484;
+  --rule: #d9dfe7;
+  --rule-soft: #e7ebf1;
+  --accent: #2540c8;
+  --accent-ink: #1b31a0;
+  --accent-soft: #e4e8fa;
+  --accent-contrast: #ffffff;
+  --danger: #a81f36;
+  --danger-soft: #f7e1e5;
+  --warn: #9a5209;
+  --warn-soft: #f6e9d8;
+  --ok: #0e6e46;
+
+  --radius: 6px;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0d1017;
+    --surface: #141924;
+    --surface-2: #1b2231;
+    --ink: #e7ebf3;
+    --ink-2: #b8c0ce;
+    --muted: #848d9e;
+    --rule: #27303f;
+    --rule-soft: #1e2634;
+    --accent: #8098ff;
+    --accent-ink: #a6b5ff;
+    --accent-soft: #1a2340;
+    --accent-contrast: #0d1017;
+    --danger: #f2778d;
+    --danger-soft: #2e1319;
+    --warn: #e5a34a;
+    --warn-soft: #2b2113;
+    --ok: #4ccb8d;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }

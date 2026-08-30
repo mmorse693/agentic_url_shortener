@@ -1,0 +1,56 @@
+{
+  "_comment": "Canonical URL-validation cases. Required by BOTH server/utils/validateUrl.test.js and src/utils/validateUrl.test.js, which is what makes AC-17 (client/server parity) a real guarantee rather than two lists that drift. Jest resolves this fine from src/; CRA's ModuleScopePlugin is a webpack plugin and does not apply to tests. Never import this from production code under src/.",
+  "_format": {
+    "input": "raw string handed to validateUrl()",
+    "padToLength": "optional: pad `input` with 'a' up to this total length before testing",
+    "expect": "'ok' or the error code",
+    "normalized": "expected normalized URL when expect is 'ok'; the literal '@input' means 'identical to the (padded) input'"
+  },
+  "baseUrl": "https://short.test",
+  "cases": [
+    { "name": "plain https URL with query", "input": "https://example.com/a/b?c=d", "expect": "ok", "normalized": "https://example.com/a/b?c=d" },
+    { "name": "bare origin gains a trailing slash", "input": "http://example.com", "expect": "ok", "normalized": "http://example.com/" },
+    { "name": "surrounding whitespace is trimmed", "input": "  https://example.com/pad  ", "expect": "ok", "normalized": "https://example.com/pad" },
+    { "name": "scheme-less input becomes https", "input": "example.com/path", "expect": "ok", "normalized": "https://example.com/path" },
+    { "name": "scheme-less input with a port is not read as a scheme", "input": "example.com:8080/path", "expect": "ok", "normalized": "https://example.com:8080/path" },
+    { "name": "scheme and host lowercase, path case preserved", "input": "HTTP://Example.COM/Path", "expect": "ok", "normalized": "http://example.com/Path" },
+    { "name": "fragments survive", "input": "https://sub.example.co.uk/x#frag", "expect": "ok", "normalized": "https://sub.example.co.uk/x#frag" },
+    { "name": "172.32.x is outside the private range", "input": "http://172.32.0.1/", "expect": "ok", "normalized": "http://172.32.0.1/" },
+    { "name": "public IPv4 is allowed", "input": "http://8.8.8.8/x", "expect": "ok", "normalized": "http://8.8.8.8/x" },
+    { "name": "exactly at the length limit", "input": "https://example.com/", "padToLength": 2048, "expect": "ok", "normalized": "@input" },
+
+    { "name": "empty string", "input": "", "expect": "EMPTY_URL" },
+    { "name": "whitespace only", "input": "   ", "expect": "EMPTY_URL" },
+
+    { "name": "free text", "input": "not a url", "expect": "INVALID_URL" },
+    { "name": "scheme with no host", "input": "http://", "expect": "INVALID_URL" },
+    { "name": "https with no host", "input": "https://", "expect": "INVALID_URL" },
+    { "name": "space where the host should be", "input": "http:// /", "expect": "INVALID_URL" },
+    { "name": "leading slashes are not a host", "input": "///nope", "expect": "INVALID_URL" },
+    { "name": "dotless host is not publicly resolvable", "input": "http://intranet/page", "expect": "INVALID_URL" },
+    { "name": "one character past the length limit", "input": "https://example.com/", "padToLength": 2049, "expect": "URL_TOO_LONG" },
+
+    { "name": "javascript scheme", "input": "javascript:alert(1)", "expect": "UNSUPPORTED_SCHEME" },
+    { "name": "javascript scheme, mixed case", "input": "JavaScript:alert(1)", "expect": "UNSUPPORTED_SCHEME" },
+    { "name": "data scheme", "input": "data:text/html,<h1>hi</h1>", "expect": "UNSUPPORTED_SCHEME" },
+    { "name": "file scheme", "input": "file:///etc/passwd", "expect": "UNSUPPORTED_SCHEME" },
+    { "name": "ftp scheme", "input": "ftp://example.com/f", "expect": "UNSUPPORTED_SCHEME" },
+    { "name": "mailto scheme", "input": "mailto:a@b.com", "expect": "UNSUPPORTED_SCHEME" },
+
+    { "name": "localhost", "input": "http://localhost:5000/admin", "expect": "BLOCKED_HOST" },
+    { "name": "loopback IPv4", "input": "http://127.0.0.1/", "expect": "BLOCKED_HOST" },
+    { "name": "loopback IPv4, whole /8", "input": "http://127.5.5.5/", "expect": "BLOCKED_HOST" },
+    { "name": "unspecified address", "input": "http://0.0.0.0/", "expect": "BLOCKED_HOST" },
+    { "name": "loopback IPv6", "input": "http://[::1]/", "expect": "BLOCKED_HOST" },
+    { "name": "private 10/8", "input": "http://10.0.0.5/", "expect": "BLOCKED_HOST" },
+    { "name": "private 172.16/12 lower bound", "input": "http://172.16.0.1/", "expect": "BLOCKED_HOST" },
+    { "name": "private 172.16/12 upper bound", "input": "http://172.31.255.254/", "expect": "BLOCKED_HOST" },
+    { "name": "private 192.168/16", "input": "http://192.168.1.1/", "expect": "BLOCKED_HOST" },
+    { "name": "cloud metadata endpoint", "input": "http://169.254.169.254/", "expect": "BLOCKED_HOST" },
+    { "name": "mDNS .local", "input": "http://printer.local/", "expect": "BLOCKED_HOST" },
+    { "name": "internal TLD", "input": "http://svc.internal/", "expect": "BLOCKED_HOST" },
+
+    { "name": "our own short link", "input": "https://short.test/r/aB3dEf9", "expect": "SELF_REFERENTIAL" },
+    { "name": "our own host without a scheme", "input": "short.test/r/x", "expect": "SELF_REFERENTIAL" }
+  ]
+}
